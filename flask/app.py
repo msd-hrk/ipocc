@@ -1,14 +1,19 @@
-from flask import Flask
+from flask import Flask, jsonify, request
+from pymongo import MongoClient
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
 @app.route('/hello')
 def hello():
-    return {
-        "a": 123,
-        "b": 456,
-    }
+
+    client = MongoClient("mongodb+srv://flask:flask@cluster0.hrlio.mongodb.net/ipocc?retryWrites=true&w=majority")
+    db = client.ipocc
+    collection = db.codelist
+    data = collection.find_one({'securitiesNo': '6227'})
+    del data["_id"]
+    print(data)
+    return jsonify(data)
 
 @app.route('/func')
 def func():
