@@ -1,0 +1,17 @@
+# Base Image
+FROM python:3.8-buster
+
+# pip install
+RUN pip install --upgrade pip
+
+# App path
+ENV APP_PATH=/opt/ipo-cc
+
+# WORKDIR
+WORKDIR /opt/ipo-cc
+
+# install python module
+COPY requirements.txt $APP_PATH
+RUN pip install -r ${APP_PATH}/requirements.txt
+
+ENV FLASK_APP ${APP_PATH}/app.py

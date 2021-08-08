@@ -1,0 +1,31 @@
+version: "3.0"
+services:
+  nuxt:
+    build: 
+      context: .
+      dockerfile: Dockerfile-nuxt 
+    ports:
+      - 9000:3000
+    # environment:
+    #   - USER_NAME
+    #   - USER_ID
+    #   - GROUP_NAME
+    #   - GROUP_ID
+    volumes:
+      - "./nuxt:/ipocc"
+    working_dir: /ipocc
+    tty: true
+    command: npm run dev
+
+  flask:
+    build:
+      context: .
+      dockerfile: Dockerfile-flask
+    container_name: flask
+    restart: always
+    volumes:
+      - ./flask:/opt/ipo-cc
+    ports:
+      - 5000:5000
+    tty: true      
+    command: python3 /opt/ipo-cc/app.py
