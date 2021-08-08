@@ -33,9 +33,25 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    // https://go.nuxtjs.dev/axios
+    "@nuxtjs/axios",
+    "@nuxtjs/proxy",
   ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  }
+  },
+
+  // Axios module configuration: https://go.nuxtjs.dev/config-axios
+  axios: {
+    proxy: true,
+  },
+  // https://zenn.dev/denham/scraps/eefb643b045ad5
+  proxy: {
+    "/hello": {
+      // target: "http://localhost:5000/hello",
+      target: "http://flask:5000/hello",
+      pathRewrite: { "^/hello": "" },
+        },
+      }
 }
