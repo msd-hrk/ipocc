@@ -1,5 +1,7 @@
-from pymongo import MongoClient
 from config import config
+from datetime import timedelta
+from pymongo import MongoClient
+import datetime
 
 class DbCommon():
     """
@@ -41,7 +43,7 @@ class DbCommon():
         data = self.collection.find_one({"securitiesNo": securities_no}, {"_id": 0})
         return data
     
-    def find_all_data():
+    def find_all_data(self):
         """
         mongoDBに保存されている全データを返す
 
@@ -50,5 +52,40 @@ class DbCommon():
         data : dict
             登録済みデータすべてを返す
         """
-        data = self.collection.find()
+        data = self.collection.find({}, {"_id": 0})
         return data
+    
+    def find_listed_data(self):
+        """
+        上場しているデータを返す
+
+        return
+        ------
+        data : dict
+            上場済みのデータを返す
+        
+        Notes
+        -----
+        メソッド起動時が23時を超えていない場合は
+        起動日に上場するデータは除く
+        """
+        all_data = self.find_all_data()
+        today = datetime.datetime.now()
+        target_date = ""
+        if today.hour >= 23:
+            #23時を超えている場合
+            target_date = today.strftime("%Y%m%d")
+        else:
+            yesterday = today - timedelta(days=1)
+            target_date = yesterday.strftime("%Y%m%d")
+        
+        contents = []
+        for data in all_data:
+            if int(data["listingDate"]) <= int(target_date):
+                contents.append(data)
+            continue
+        
+        response = {
+            "contents": contents
+        }
+        return response
