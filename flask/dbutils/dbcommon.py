@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from flask.config import config
+from config import config
 
 class DbCommon():
     """
@@ -38,7 +38,7 @@ class DbCommon():
         mongo_data : dict
             mongoDBに登録されている該当データ
         """
-        data = self.collection.find_one({"securitiesNo": securities_no})
+        data = self.collection.find_one({"securitiesNo": securities_no}, {"_id": 0})
         return data
     
     def find_all_data():

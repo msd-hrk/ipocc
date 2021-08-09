@@ -24,8 +24,9 @@ services:
     container_name: flask
     restart: always
     volumes:
-      - ./flask:/opt/ipo-cc
+      - ./flask:/opt/ipocc
     ports:
       - 5000:5000
-    tty: true      
-    command: python3 /opt/ipo-cc/app.py
+    tty: true
+    working_dir: /opt/ipocc
+    command: python3 /opt/ipocc/app.py
