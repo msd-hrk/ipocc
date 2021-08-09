@@ -22,6 +22,8 @@ services:
       context: .
       dockerfile: Dockerfile-flask
     container_name: flask
+    environment: 
+      TZ: Asia/Tokyo
     restart: always
     volumes:
       - ./flask:/opt/ipocc
