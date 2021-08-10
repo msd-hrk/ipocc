@@ -66,13 +66,15 @@ class DbCommon():
         
         Notes
         -----
-        メソッド起動時が23時を超えていない場合は
+        メソッド起動時が22時を超えていない場合は
         起動日に上場するデータは除く
+        priceDiaryフィールドがない（上場廃止）したものも除外
         """
+        BOUND_TIME = 22  # 境界時間
         all_data = self.find_all_data()
         today = datetime.datetime.now()
         target_date = ""
-        if today.hour >= 23:
+        if today.hour >= BOUND_TIME:
             #23時を超えている場合
             target_date = today.strftime("%Y%m%d")
         else:
@@ -81,7 +83,8 @@ class DbCommon():
         
         contents = []
         for data in all_data:
-            if int(data["listingDate"]) <= int(target_date):
+            if int(data["listingDate"]) <= int(target_date) \
+                and data["priceDiary"] is not None:
                 contents.append(data)
             continue
         
