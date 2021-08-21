@@ -67,3 +67,24 @@ More information about the usage of this directory in [the documentation](https:
 This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
 
 More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+
+### `json-server`
+<!-- https://tabinou.com/archives/2512 -->
+install: npm install --save-dev json-server
+version確認: npx json-server -v
+jsonサーバ起動: npx json-server --watch db.json
+※db.jsonファイルがない場合、自動で作成される
+<!-- https://qiita.com/y-tsutsu/items/67f71fc8430a199a3efd -->
+routes.jsonファイル作成
+
+jsonサーバ起動(ポート指定): npx json-server --watch db.json --routes routes.json --port 3001
+
+### nuxtとjson-server同時起動コマンド作成
+<!-- https://qiita.com/takeo-asai/items/f1099b8bc5046da5e87b -->
+インストール: npm install concurrently -D
+package.jsonのscript内に下記を追記:
+"dev_json": "concurrently \"npm run json-mock\" \"npm run dev\""
+
+### chart.jsインストール
+vue-chartjsはchart.jsv3.0~に対応されていません。
+npm install --save chart.js@2.9.4 vue-chartjs
