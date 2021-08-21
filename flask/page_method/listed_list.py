@@ -2,7 +2,7 @@ from dbutils import dbcommon
 
 def get_listed_list():
     """
-    /hello アクセス時のデータを取得して返却する
+    /listedList アクセス時のデータを取得して返却する
 
     return
     ------

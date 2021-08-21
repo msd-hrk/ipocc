@@ -84,7 +84,7 @@ class DbCommon():
         contents = []
         for data in all_data:
             if int(data["listingDate"]) <= int(target_date) \
-                and data["priceDiary"] is not None:
+                and "priceDiary" in data:
                 contents.append(data)
             continue
         
