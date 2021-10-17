@@ -31,15 +31,18 @@ def listed_list():
     data = wrap_contents(ll.get_listed_list())
     return jsonify(data)
 
-@app.route('/listedCompanies/<int:day_count>')
-def listedCompanys(day_count):
+@app.route('/listedCompanies')
+def listedCompanys():
     """
     上場済み全データのうち指定日日数分のデータに整形して返却
     
     return
     ------
-    flask:5000/listedCompanys/30 → 30日分
+    flask:5000/listedCompanys?day=25 → 30日分
+    day:default=30
     """
+    day_count = request.args.get('day', default=30, type=int)
+
     data = wrap_contents(lc.get_listed_companies(day_count))
     return jsonify(data)
 
