@@ -75,7 +75,7 @@ class DbCommon():
         today = datetime.datetime.now()
         target_date = ""
         if today.hour >= BOUND_TIME:
-            #23時を超えている場合
+            # 起動時間が境界時間を超えている場合
             target_date = today.strftime("%Y%m%d")
         else:
             yesterday = today - timedelta(days=1)
@@ -87,8 +87,5 @@ class DbCommon():
                 and "priceDiary" in data:
                 contents.append(data)
             continue
-        
-        response = {
-            "contents": contents
-        }
-        return response
+
+        return contents
