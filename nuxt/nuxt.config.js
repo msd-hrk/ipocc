@@ -82,6 +82,11 @@ export default {
       target: "http://flask:5000/hello",
       pathRewrite: { "^/hello": "" },
     },
+    "/listedList": {
+      // target: "http://localhost:3001/listedList",
+      target: "http://flask:5000/listedList",
+      pathRewrite: { "^/listedList": "" },
+    },
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa

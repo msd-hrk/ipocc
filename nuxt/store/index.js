@@ -4,6 +4,8 @@
 const getDefaultState = () => {
   return {
     info:'',
+    contents:[],
+    securitiesNos:[], // 証券コード
     // theme:'',
   }
 }
@@ -21,6 +23,13 @@ export const mutations = {
   setHello(state, info){
     state.info = info;
     // console.log(info)
+  },
+  setContents(state, contents){
+    state.contents = contents;
+    // console.log(contents)
+  },
+  setSecuritiesNos(state, securitiesNos){
+    state.securitiesNos = securitiesNos;
   },
 
   // リロード対応
@@ -70,5 +79,21 @@ export const actions = {
         
     // console.log('$config:',$config);
     commit('setHello', info)
+  },
+
+  async getListedList({commit, state}, ){
+    const contents = await this.$axios.$get("/listedList")
+    console.log('getListedList:',contents, contents.contents);
+    commit('setContents', contents)
+    // commit('setContents', contents.contents)
+
+    // const securitiesNos = state.contents.contents.map(element => {
+    // // const securitiesNos = state.contents.map(element => {
+    //   // console.log("securitiesNo:", Number(Object.values(element.securitiesNo).join('')))
+    //   // console.log(Object.keys(element))
+    //   return Number(Object.values(element.securitiesNo).join(''))
+    // });
+    // console.log("securitiesNos:",securitiesNos)
+    // commit('setSecuritiesNos', securitiesNos)
   },
 }

@@ -1,4 +1,5 @@
 {
   "/api/spam": "/spam",
-  "/hello": "/ipocc"
+  "/hello": "/ipocc",
+  "listedList": "/listedList"
 }

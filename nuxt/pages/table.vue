@@ -1,5 +1,14 @@
 <template>
   <div id="content">
+    <h1>Detail.vue</h1>
+    <p>詳細ページ</p>
+    <Detail
+      :contents="contents"
+      :content="content"
+      :index=0
+    >
+    </Detail>
+    <br><br><br>
     <h1>VueJsonToTree</h1>
     <p>MongoDBみたいに、展開できる。</p>
     <!-- https://www.npmjs.com/package/vue-json-pretty -->
@@ -11,14 +20,14 @@
       :showLine="true"
       :showDoubleQuotes="false"
       :showSelectController="true"
-      @click="handleClick">
+    >
     </vue-json-pretty>
 
-    <br><br><br>
+    <!-- <br><br><br>
     <h1>VueJsonToTable</h1>
     <p>テーブル表示。途中で断念...</p>
-    <!-- <VueJsonToTableNew :data="jsonDataArr"/> -->
-    <VueJsonToTable :data="jsonDataArr"/>
+    <VueJsonToTableNew :data="jsonDataArr"/> -->
+    <!-- <VueJsonToTable :data="jsonDataArr"/> -->
   </div>
 </template>
 
@@ -28,7 +37,7 @@ import 'vue-json-pretty/lib/styles.css';
 
 // import JsonToHtml from 'vue-json-to-html'
 // import VueJsonToTable from 'vue-json-to-table'
-import VueJsonToTable from '../components/VueJsonToTable.vue'
+// import VueJsonToTable from '../components/VueJsonToTable.vue'
 // import VueJsonToTableNew from '../components/VueJsonToTableNew.vue'
 
 export default {
@@ -36,25 +45,43 @@ export default {
     VueJsonPretty,
 
     // JsonToHtml,
-    VueJsonToTable,
+    // VueJsonToTable,
     // VueJsonToTableNew,
   },
   // https://ja.nuxtjs.org/docs/2.x/features/data-fetching
   // async asyncData({ store }) {
   //   await store.dispatch('getHello')
   // },
+  
+  // https://ja.nuxtjs.org/docs/2.x/features/data-fetching
+  async asyncData({ store }) {
+    await store.dispatch('getHello')
+    await store.dispatch('getListedList')
+  },
 
   data () {
     return{
       // json:''
       // jsonDataArr:''
       // jsonDataArr:{}
-      jsonDataArr:jsonElements
+      jsonDataArr:jsonElements,
+      // contents: contentsSample,
+      contents: {},
+      content: [],
     }
   },
   created(){
-    this.jsonDataArr = this.$store.state.info; // store/index.jsのstate.statusを取得
-    console.log(this.$store.state.info)
+    console.log("created")
+    // this.jsonDataArr = this.$store.state.info; // store/index.jsのstate.statusを取得
+    // console.log(this.$store.state.info)
+
+    this.contents = this.$store.state.contents;
+    console.log(this.contents)
+
+    this.content = Object.values(this.contents)[0][0]
+      // content: Object.values(contentsSample)[0][0], // priceDiaryの変更テスト
+      // content: Object.values(contentsSample)[0][i],
+    console.log(this.content)
   },
 }
 export const jsonElements = 

@@ -1,0 +1,54 @@
+
+案1
+"priceDiary": [
+    {
+	    "20210811": {
+			open: 1740, "始値
+			closePrice: 1841, "終値
+			maxPrice: 1860, "高値
+			minPrice: 1690, "安値
+			prchsMargin: 273400, "信用買残 Outstanding purchases on margin
+			salesMargin: 200, "信用売残 Outstanding sales on margin
+			ratioOfMargin: 1367, "信用倍率ratio of margin balance
+		}
+	},
+    {
+	    "20210812": {
+			open: 1111, "始値
+			closePrice: 2222, "終値
+			maxPrice: 3333, "高値
+			minPrice: 1000, "安値
+			prchsMargin: 121212, "信用買残 Outstanding purchases on margin
+			salesMargin: 1212, "信用売残 Outstanding sales on margin
+			ratioOfMargin: 1000, "信用倍率ratio of margin balance
+		}
+	},
+	・・・
+]	
+	
+
+案2
+"priceDiary": [
+    {
+	    date: "20210811", "年月日
+		open: 1740, "始値
+		closePrice: 1841, "終値
+		maxPrice: 1860, "高値
+		minPrice: 1690, "安値
+		prchsMargin: 273400, "信用買残 Outstanding purchases on margin
+		salesMargin: 200, "信用売残 Outstanding sales on margin
+		ratioOfMargin: 1367, "信用倍率ratio of margin balance
+		
+	},
+    {
+	    date: "20210812", "年月日
+		open: 1111, "始値
+		closePrice: 2222, "終値
+		maxPrice: 3333, "高値
+		minPrice: 1000, "安値
+		prchsMargin: 121212, "信用買残 Outstanding purchases on margin
+		salesMargin: 1212, "信用売残 Outstanding sales on margin
+		ratioOfMargin: 1000, "信用倍率ratio of margin balance
+	},
+	・・・
+]
