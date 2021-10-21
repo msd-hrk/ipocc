@@ -1,5 +1,7 @@
 <template>
   <div >
+    <h1>Detail.vue</h1>
+    <p>詳細ページ</p>
     <v-card>
       <v-card-title>会社名：{{content.company}}</v-card-title>
       <v-card-text>
@@ -12,6 +14,9 @@
         :headers="headers"
         :items="desserts"
         :items-per-page="5"
+        multi-sort
+        :sort-by="['date', 'ratioOfMargin']"
+        :sort-desc="[false, true]"
         class="elevation-1"
       ></v-data-table>
     </v-card>
@@ -46,7 +51,7 @@ export default {
           {
             text: 'Date',
             align: 'start',
-            sortable: false,
+            sortable: true,
             value: 'date',
             // value: 'name',
           },
@@ -91,62 +96,6 @@ export default {
         //     protein: 6.0,
         //     iron: '7%',
         //   },
-        //   {
-        //     name: 'Cupcake',
-        //     calories: 305,
-        //     fat: 3.7,
-        //     carbs: 67,
-        //     protein: 4.3,
-        //     iron: '8%',
-        //   },
-        //   {
-        //     name: 'Gingerbread',
-        //     calories: 356,
-        //     fat: 16.0,
-        //     carbs: 49,
-        //     protein: 3.9,
-        //     iron: '16%',
-        //   },
-        //   {
-        //     name: 'Jelly bean',
-        //     calories: 375,
-        //     fat: 0.0,
-        //     carbs: 94,
-        //     protein: 0.0,
-        //     iron: '0%',
-        //   },
-        //   {
-        //     name: 'Lollipop',
-        //     calories: 392,
-        //     fat: 0.2,
-        //     carbs: 98,
-        //     protein: 0,
-        //     iron: '2%',
-        //   },
-        //   {
-        //     name: 'Honeycomb',
-        //     calories: 408,
-        //     fat: 3.2,
-        //     carbs: 87,
-        //     protein: 6.5,
-        //     iron: '45%',
-        //   },
-        //   {
-        //     name: 'Donut',
-        //     calories: 452,
-        //     fat: 25.0,
-        //     carbs: 51,
-        //     protein: 4.9,
-        //     iron: '22%',
-        //   },
-        //   {
-        //     name: 'KitKat',
-        //     calories: 518,
-        //     fat: 26.0,
-        //     carbs: 65,
-        //     protein: 7,
-        //     iron: '6%',
-        //   },
         // ],
     }
   },
@@ -167,7 +116,7 @@ export default {
       const priceDiary = []
         // ${Object.keys(this.content.priceDiary)[i]}: ${Object.values(this.content.priceDiary)[i]}
       // 旧pricdDiaryの場合
-        console.log(Object.values(this.content.priceDiary))
+        // console.log(Object.values(this.content.priceDiary))
         for(let i = 0; i< Object.keys(this.content.priceDiary).length; i++){
           const diaryData = {}
           diaryData.date= Object.values(this.content.priceDiary[i])[0]
@@ -197,7 +146,7 @@ export default {
         //   // console.log(`diaryData→${JSON.stringify(diaryData)}`)
         // }
 
-      console.log(`data→${JSON.stringify(priceDiary)}`)
+      // console.log(`data→${JSON.stringify(priceDiary)}`)
       // console.log(JSON.parse(priceDiary))
       return priceDiary
     },

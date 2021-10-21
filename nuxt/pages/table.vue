@@ -1,7 +1,12 @@
 <template>
   <div id="content">
-    <h1>Detail.vue</h1>
-    <p>詳細ページ</p>
+    <table-after-listing
+      :contents="contents"
+      :content="content"
+      :index=0
+    >
+    </table-after-listing>
+    
     <Detail
       :contents="contents"
       :content="content"
@@ -34,6 +39,8 @@
 <script>
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
+import Detail from '~/components/Detail.vue';
+import TableAfterListing from '~/components/TableAfterListing.vue';
 
 // import JsonToHtml from 'vue-json-to-html'
 // import VueJsonToTable from 'vue-json-to-table'
@@ -43,6 +50,8 @@ import 'vue-json-pretty/lib/styles.css';
 export default {
   components: {
     VueJsonPretty,
+    Detail,
+    TableAfterListing,
 
     // JsonToHtml,
     // VueJsonToTable,
