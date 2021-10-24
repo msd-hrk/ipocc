@@ -4,26 +4,60 @@
     <v-card >
       <v-card-title>
         会社一覧(上場後の価格 TableAfterListing)
-      <v-spacer></v-spacer>
+        <v-spacer></v-spacer>
+        <v-spacer></v-spacer>
+        <v-select
+          v-model="search"
+          :items="types"
+          label="単一種類の表示"
+        ></v-select>
+      </v-card-title>
+        
+      <v-card-subtitle>
         <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
           label="Search"
-          single-line
           hide-details
         ></v-text-field>
-      </v-card-title>
+      </v-card-subtitle>
+
       <v-data-table
         :headers="headers"
         :items="companylist"
         :items-per-page="8"
         :search="search"
         multi-sort
-        :sort-by="['companyname', 'date1']"
+        :sort-by="['company', 'date1']"
         :sort-desc="[false, true]"
         class="elevation-1"
         color="green darken-1"
-      ></v-data-table>
+      >
+        
+        <!-- ツールチップ機能付きアイコン https://qiita.com/pokoTan2525/items/c698457d2473dab0868f -->
+        <!-- <template v-slot:item.scheduledAt="{ item }"> -->
+        <template v-slot:[`item.InitPriceSellProfit`]="{ item }">
+          <v-tooltip v-if="item.InitPriceSellProfit" bottom >
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                dark
+                v-bind="attrs"
+                v-on="on"
+              >
+                mdi-information-outline
+              </v-icon>
+            </template>
+            <div>InitPriceSellProfit：{{ item.InitPriceSellProfit }}</div>
+            <div v-if="item.category">業種：{{ item.category }}</div>
+            <div v-if="item.business">事業内容：{{ item.business }}</div>
+            <div v-if="item.build">設立：{{ item.build }}</div>
+            <div v-if="item.grade">grade：{{ item.grade }}</div>
+            <div v-if="item.initPrice">initPrice：{{ item.initPrice }}</div>
+            <div v-if="item.securitiesNo">securitiesNo：{{ item.securitiesNo }}</div>
+            <div v-if="item.pubOfferPrice">pubOfferPrice：{{ item.pubOfferPrice }}</div>
+          </v-tooltip>
+        </template>
+      </v-data-table>
     </v-card>
     <!-- <br><br><br>
       <p>{{headers}}</p>
@@ -57,13 +91,14 @@ export default {
         Contents : Object.values(this.contents)[0],
         // headers: this.createHeaders(),
         search:'',
+        types:['', '始値', '終値'],
         headers: [],
         // [
         //   {
         //     text: '会社名',
         //     align: 'start',
         //     sortable: false,
-        //     value: 'companyname',
+        //     value: 'company',
         //     // value: 'name',
         //   },
         //   this.dateHeader()
@@ -85,13 +120,13 @@ export default {
         companylist: [],
         // [
           // {
-          //   companyname: '会社a',
+          //   company: '会社a',
           //   date1:'上場初日のcloseの値',
           //   date2:'上場2日目のcloseの値',
           //   daten:'上場n日目のcloseの値',
           // },
           // {
-          //   companyname: '会社b',
+          //   company: '会社b',
           //   date1:'上場初日のcloseの値',
           //   date2:'上場2日目のcloseの値',
           //   daten:'上場n日目のcloseの値',
@@ -133,13 +168,15 @@ export default {
   methods: {
     createHeaders() {
       const headers = []
-      headers[0] = {
+         
+      headers[0] = { text: 'info', value: 'InitPriceSellProfit' } // slotでカスタマイズするため、valueの指定は必須となる	
+      headers[1] = {
                     text: '会社名',
                     align: 'start',
                     sortable: true,
-                    value: 'companyname',
+                    value: 'company',
                     }
-      headers[1] = {
+      headers[2] = {
                     text: '種類',
                     // align: 'start',
                     // sortable: false,
@@ -184,8 +221,10 @@ export default {
         // console.log('company:' + JSON.stringify(this.Contents[i].company))
         const openData = {} // 会社ごとの日次priceDiary(始値)
         const closeData = {} // 会社ごとの日次priceDiary(終値)
-        openData.companyname = this.Contents[i].company;
-        closeData.companyname = this.Contents[i].company;
+
+        // 会社情報get 
+        this.getCompanyInfo(this.Contents[i], openData);
+        this.getCompanyInfo(this.Contents[i], closeData);
 
         // 種類,データ部
         // console.log(this.Contents[i].priceDiary.length)
@@ -198,7 +237,7 @@ export default {
           // 始値
           openData.type = '始値(%)'
           ratio = (priceDiaryAll[j][1] / publicOfferingPrice) * 100
-          openData[`date${j+1}`] = Math.round(ratio * 100)/100 // 小数点第2位で四捨五入
+          openData[`date${j+1}`] = Math.round(ratio * 100)/100 // 小数点第2位で四捨五入{JSON.stringify(closeData)}`)
 
           // 終値
           closeData.type = '終値(%)'
@@ -206,13 +245,14 @@ export default {
           closeData[`date${j+1}`] = Math.round(ratio * 100)/100 // 小数点第2位で四捨五入
         }
         // console.log(`Data:${JSON.stringify(openData)}`)
-        // console.log(`closeData:${JSON.stringify(closeData)}`)
+        // console.log(`closeData:$
+
         priceRatioAfterListing.push(openData, closeData)
       }
       return priceRatioAfterListing
         // [
           // {
-          //   companyname: '会社a',
+          //   company: '会社a',
             // type: '終値',
           //   date1:'上場初日のcloseの割合',
           //   date2:'上場2日目のcloseの割合',
@@ -221,48 +261,75 @@ export default {
         // ]
     },
 
-    // 上場後の価格を整形
-    priceAfterListing(){        
-      const priceAfterListing = [] // 全社のpriceDiary情報
-      // companyごとにループ
-      for(let i = 0; i< this.Contents.length ; i++){
-        // 会社名
-        // console.log('company:' + JSON.stringify(this.Contents[i].company))
-        const openData = {} // 会社ごとの日次priceDiary(始値)
-        const closeData = {} // 会社ごとの日次priceDiary(終値)
-        openData.companyname = this.Contents[i].company;
-        closeData.companyname = this.Contents[i].company;
+    // 詳細情報付与 
+    getCompanyInfo(companyInfo, data){
+      // console.log("getCompanyInfo")
+      // keys取得
+      const companyInfoKeys = Object.keys(companyInfo)
+      // console.log(`companyInfoKeys:${companyInfoKeys}`)
+      // keyでループ
+      companyInfoKeys.forEach(key => {
+        // console.log(key)
+        // value取得
+        const companyInfoValue = companyInfo[key]
+        // console.log(companyInfoValue)
+        
+        // valueの型判定 // https://qiita.com/amamamaou/items/ef0b797156b324bb4ef3
+        const isPrototype = Object.prototype.toString.call(companyInfoValue).slice(8, -1).toLowerCase()
+        // console.log(`${key} isPrototype:${isPrototype}`)
 
-        // 種類,データ部
-        // console.log(this.Contents[i].priceDiary.length)
-        const priceDiaryAll = this.Contents[i].priceDiary; // この会社のpriceDiary
-        // priceDiaryをループ
-        for(let j = 0; j< priceDiaryAll.length ; j++){
-          // console.log(`priceDiaryAll[${j}]:${priceDiaryAll[j]}`)
-          
-          // 始値
-          openData.type = '始値'
-          openData[`date${j+1}`] = priceDiaryAll[j][1]
-
-          // 終値
-          closeData.type = '終値'
-          closeData[`date${j+1}`] = priceDiaryAll[j][2]
+        // 型が"string" | "number"のとき
+        if (isPrototype === "string" || isPrototype === "number"){
+          data[key] = companyInfoValue // dataに付与
         }
-        // console.log(`Data:${JSON.stringify(openData)}`)
-        // console.log(`closeData:${JSON.stringify(closeData)}`)
-        priceAfterListing.push(openData, closeData)
-      }
-      return priceAfterListing
-        // [
-          // {
-          //   companyname: '会社a',
-            // type: '終値',
-          //   date1:'上場初日のcloseの値',
-          //   date2:'上場2日目のcloseの値',
-          //   daten:'上場n日目のcloseの値',
-          // },
-        // ]
+      });
+      // console.log(`data:${JSON.stringify(data)}`)
+      return {data}
     },
+
+    // // 上場後の価格を整形
+    // priceAfterListing(){        
+    //   const priceAfterListing = [] // 全社のpriceDiary情報
+    //   // companyごとにループ
+    //   for(let i = 0; i< this.Contents.length ; i++){
+    //     // 会社名
+    //     // console.log('company:' + JSON.stringify(this.Contents[i].company))
+    //     const openData = {} // 会社ごとの日次priceDiary(始値)
+    //     const closeData = {} // 会社ごとの日次priceDiary(終値)
+    //     openData.company = this.Contents[i].company;
+    //     closeData.company = this.Contents[i].company;
+
+    //     // 種類,データ部
+    //     // console.log(this.Contents[i].priceDiary.length)
+    //     const priceDiaryAll = this.Contents[i].priceDiary; // この会社のpriceDiary
+    //     // priceDiaryをループ
+    //     for(let j = 0; j< priceDiaryAll.length ; j++){
+    //       // console.log(`priceDiaryAll[${j}]:${priceDiaryAll[j]}`)
+          
+    //       // 始値
+    //       openData.type = '始値'
+    //       openData[`date${j+1}`] = priceDiaryAll[j][1]
+
+    //       // 終値
+    //       closeData.type = '終値'
+    //       closeData[`date${j+1}`] = priceDiaryAll[j][2]
+    //     }
+    //     // console.log(`Data:${JSON.stringify(openData)}`)
+    //     // console.log(`closeData:${JSON.stringify(closeData)}`)
+    //     priceAfterListing.push(openData, closeData)
+    //   }
+    //   return priceAfterListing
+    //     // [
+    //       // {
+    //       //   company: '会社a',
+    //         // type: '終値',
+    //       //   date1:'上場初日のcloseの値',
+    //       //   date2:'上場2日目のcloseの値',
+    //       //   daten:'上場n日目のcloseの値',
+    //       // },
+    //     // ]
+    // },
+
   }
 };
 </script>

@@ -88,15 +88,7 @@ export default {
         //     protein: 4.3,
         //     iron: '1%',
         //   },
-        //   {
-        //     name: 'Eclair',
-        //     calories: 262,
-        //     fat: 16.0,
-        //     carbs: 23,
-        //     protein: 6.0,
-        //     iron: '7%',
-        //   },
-        // ],
+        // ]
     }
   },
   computed: {
