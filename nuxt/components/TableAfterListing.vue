@@ -21,7 +21,8 @@
           hide-details
         ></v-text-field>
       </v-card-subtitle>
-
+      
+      <!-- https://qiita.com/shin_ts/items/0dec5b2f97f90916a1a5 -->
       <v-data-table
         :headers="headers"
         :items="companylist"
@@ -30,11 +31,27 @@
         multi-sort
         :sort-by="['company', 'date1']"
         :sort-desc="[false, true]"
-        class="elevation-1"
-        color="green darken-1"
+        fixed-header
+        height="500"
+        class="tableAfterListing"
       >
+
+        <!-- 会社サイトへリンク https://www.paveway.info/entry/2020/12/11/vuetifyjs_vdatatablelink -->
+        <!-- <template v-slot:[`item.web`]="{ item }"> -->
+        <template v-slot:[`item.company`]="{ item }">
+          <!-- <div v-if="!sameCompanyName(item.company)" -->
+            <a v-if="item.web" target="_blank" :href="item.web">
+              <!-- <div v-if="!sameCompanyName(item.company)" dark> -->
+
+              {{ item.company }}
+              <!-- </div> -->
+            </a>
+            <p v-else>{{ item.company }}</p>
+          <!-- </div> -->
+        </template>
         
-        <!-- ツールチップ機能付きアイコン https://qiita.com/pokoTan2525/items/c698457d2473dab0868f -->
+        <!-- ツールチップ機能付きアイコン https://zenn.dev/katoaki/articles/a53d1dd254992b -->
+        <!-- https://qiita.com/pokoTan2525/items/c698457d2473dab0868f -->
         <!-- <template v-slot:item.scheduledAt="{ item }"> -->
         <template v-slot:[`item.InitPriceSellProfit`]="{ item }">
           <v-tooltip v-if="item.InitPriceSellProfit" bottom >
@@ -48,17 +65,52 @@
               </v-icon>
             </template>
             <div>InitPriceSellProfit：{{ item.InitPriceSellProfit }}</div>
-            <div v-if="item.category">業種：{{ item.category }}</div>
+            <div v-if="item.capital">資本金：{{ item.capital }}</div>
             <div v-if="item.business">事業内容：{{ item.business }}</div>
-            <div v-if="item.build">設立：{{ item.build }}</div>
+            <div v-if="item.category">業種：{{ item.category }}</div>
+            <div v-if="item.build">設立年度：{{ item.build }}</div>
+            <div v-if="item.employee">~従業員情報~ 平均年齢?：{{ item.employee.age }}  社員数?：{{ item.employee.age }}  平均年収?：{{ item.employee.salary }}</div>
             <div v-if="item.grade">grade：{{ item.grade }}</div>
             <div v-if="item.initPrice">initPrice：{{ item.initPrice }}</div>
             <div v-if="item.securitiesNo">securitiesNo：{{ item.securitiesNo }}</div>
             <div v-if="item.pubOfferPrice">pubOfferPrice：{{ item.pubOfferPrice }}</div>
           </v-tooltip>
         </template>
+
+        <!-- 色変換 -->
+          <!-- templateタグ内でv-forを使う際の注意点 https://qiita.com/shizen-shin/items/ee97ace80f6945519c39 -->
+          <!-- templateタグ内のv-for参考 https://jsfiddle.net/mysticatea/zuyjom9m/47/ -->
+        <template v-for="i in counter" v-slot:[`item.date${i}`]="{ item }" >
+          <v-chip
+            :key="i"
+            :color="getColor( item[`date${i}`] )"
+            outlined
+            dark
+          >
+            {{ item[`date${i}`] }}
+          </v-chip>
+        </template>
+        <!-- <template v-for="i in counter" v-slot:[`item.date${i}`]="{ item }" >
+          <v-chip
+            :key="i"
+            :color="getColor( getDateData(item, i).value )"
+            dark
+          >
+            {{ getDateData(item, i).value }}
+          </v-chip>
+        </template> -->
+        <!-- <template v-slot:[`item.date1`]="{ item }">
+          <v-chip
+            :color="getColor(item.date1)"
+            dark
+          >
+            {{ item.date1 }}
+          </v-chip>
+        </template> -->
       </v-data-table>
+      
     </v-card>
+
     <!-- <br><br><br>
       <p>{{headers}}</p>
       <p>{{companylist}}</p>
@@ -93,6 +145,8 @@ export default {
         search:'',
         types:['', '始値', '終値'],
         headers: [],
+        counter:'',
+        preComapnyName:'',
         // [
         //   {
         //     text: '会社名',
@@ -166,21 +220,29 @@ export default {
   mounted(){
   },
   methods: {
+    sameCompanyName(nowCompanyName){
+      let sameCompanyflag = false;
+      if (this.preComapnyName === nowCompanyName) sameCompanyflag = true
+      this.preComapnyName = nowCompanyName
+      return sameCompanyflag
+    },
     createHeaders() {
       const headers = []
          
-      headers[0] = { text: 'info', value: 'InitPriceSellProfit' } // slotでカスタマイズするため、valueの指定は必須となる	
+      headers[0] = { text: 'info', value: 'InitPriceSellProfit',width: '30'  } // slotでカスタマイズするため、valueの指定は必須となる	
       headers[1] = {
                     text: '会社名',
                     align: 'start',
                     sortable: true,
                     value: 'company',
+                    width: '150' ,
                     }
       headers[2] = {
                     text: '種類',
                     // align: 'start',
                     // sortable: false,
                     value: 'type',
+                    width: '80' ,
                     }
 
       // priceDiaryの最大データ数の算出
@@ -191,6 +253,7 @@ export default {
         if(priceDiaryLength < this.Contents[i].priceDiary.length){
         // priceDiaryの最大データ数を格納
           priceDiaryLength = this.Contents[i].priceDiary.length;
+          this.counter = priceDiaryLength
         }
       }
       // console.log(priceDiaryLength)
@@ -282,11 +345,34 @@ export default {
         if (isPrototype === "string" || isPrototype === "number"){
           data[key] = companyInfoValue // dataに付与
         }
+
+        // keyが"employee"のとき
+        if (key === "employee"){
+          data[key] = companyInfoValue // dataに付与
+          // console.log(`employee:${JSON.stringify(data[key])}`)
+        }
       });
       // console.log(`data:${JSON.stringify(data)}`)
       return {data}
     },
 
+    // 色分け準備 
+    getDateData (item, i) {
+      // const value = `item.date${i}`
+      const value = item[`date${i}`]
+      const text = "item.date"+i
+      // console.log(`value:${value}, text:${text}`)
+      // console.log(`getDateData ${i}:${JSON.stringify(item)}`)
+      return {value, text}
+    },
+    // 色分け
+    getColor (value) {
+      if (value >= 200) return 'green'
+      else if (value >= 100) return 'blue'
+      else if (value >= 50) return 'orange'
+      else if (value >= 0) return 'red'
+      else return 'dark'
+    },
     // // 上場後の価格を整形
     // priceAfterListing(){        
     //   const priceAfterListing = [] // 全社のpriceDiary情報
@@ -335,12 +421,31 @@ export default {
 </script>
 
 <style scoped>
-/* https://zenn.dev/gz/articles/e4c68d541ec054be905b */
-.v-data-table--fixed-header >>> th:nth-child(1) {
+/* v-data-tableの列固定 https://zenn.dev/gz/articles/e4c68d541ec054be905b */
+/* 「>>>」Vue.jsでのdeep selectorの書き方 https://qiita.com/h-naito/items/f6ca679276282dce2600 */
+/* 何番目系の便利なCSSまとめ https://qiita.com/ituki_b/items/62a752389385de7ba4a2 */
+/* :nth-child():  https://developer.mozilla.org/ja/docs/Web/CSS/:nth-child */
+/* CSSで使われる「#」「>」「$」などの意味とは？ https://kredo.jp/media/css-symbol-meaning/ */
+/* nth-childとnth-of-typeでよく使う倍数や範囲の逆引き集 https://www.itti.jp/web-design/css-nth-child/ */
+/* 「position: sticky」 https://coliss.com/articles/build-websites/operation/css/css-position-sticky-how-it-really-works.html */
+/* z-indexとは https://jajaaan.co.jp/web-production/frontend/z-index/ */
+
+/* .v-data-table--fixed-header >>> th:nth-child(1) { */
+.v-data-table--fixed-header ::v-deep th:nth-child(n+1):nth-child(-n+2) {
     position: sticky !important;
     position: -webkit-sticky !important;
     left: 0;
     z-index: 9999;
-    background: white;
+    background: rgb(68, 15, 2);
 }
+
+/* .tableAfterListing /deep/ tbody > tr:nth-child(2n){ */
+.tableAfterListing /deep/ tbody > tr:nth-child(n) > td:nth-child(n+1):nth-child(-n+2){
+    position: sticky !important;
+    position: -webkit-sticky !important;
+    left: 0;
+    z-index: 10;
+    background: rgb(85, 0, 0);
+}
+
 </style>
