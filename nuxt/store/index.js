@@ -3,10 +3,20 @@
 // https://arrown-blog.com/vuex-state-reset/
 const getDefaultState = () => {
   return {
-    info:'',
+    info:{},
     contents:[],
     securitiesNos:[], // 証券コード
+    preComapnyName:'',
     // theme:'',
+    // firstFlag:true,
+    // turnFlag:'', // Q:Questioner, G:Guesser
+    // hints:[], // hints
+    // answers:[], // answers
+    // correct:false,
+    // step:1,
+
+    // dialogItems:{},
+    // watchCounter:0,
   }
 }
 // // ステート => アプリケーション全体の状態を保持するオブジェクト
@@ -30,6 +40,9 @@ export const mutations = {
   },
   setSecuritiesNos(state, securitiesNos){
     state.securitiesNos = securitiesNos;
+  },
+  setPreComapnyName(state, nowComapnyName){
+    state.preComapnyName = nowComapnyName;
   },
 
   // リロード対応
@@ -87,13 +100,13 @@ export const actions = {
     commit('setContents', contents)
     // commit('setContents', contents.contents)
 
-    // const securitiesNos = state.contents.contents.map(element => {
-    // // const securitiesNos = state.contents.map(element => {
-    //   // console.log("securitiesNo:", Number(Object.values(element.securitiesNo).join('')))
-    //   // console.log(Object.keys(element))
-    //   return Number(Object.values(element.securitiesNo).join(''))
-    // });
+    const securitiesNos = state.contents.contents.map(element => {
+    // const securitiesNos = state.contents.map(element => {
+      // console.log("securitiesNo:", Number(Object.values(element.securitiesNo).join('')))
+      // console.log(Object.keys(element))
+      return Number(Object.values(element.securitiesNo).join(''))
+    });
     // console.log("securitiesNos:",securitiesNos)
-    // commit('setSecuritiesNos', securitiesNos)
+    commit('setSecuritiesNos', securitiesNos)
   },
 }

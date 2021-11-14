@@ -13,21 +13,23 @@
       <v-data-table
         :headers="headers"
         :items="desserts"
-        :items-per-page="5"
+        :items-per-page="16"
         multi-sort
-        :sort-by="['date', 'ratioOfMargin']"
+        :sort-by="['date']"
         :sort-desc="[false, true]"
+        fixed-header
+        height="500"
         class="elevation-1"
       ></v-data-table>
     </v-card>
     <br><br><br>
-    <div>
+    <!-- <div>
       content→{{content}}
       <br><br><br><br>
       index→{{index}}
       <br><br><br><br>
       contents→{{contents}}
-    </div>
+    </div> -->
   </div>
 </template>
 

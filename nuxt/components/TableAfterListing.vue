@@ -21,48 +21,105 @@
           hide-details
         ></v-text-field>
       </v-card-subtitle>
-      
+
+      <div ref="tableDOM">
+        <v-card-text>↓フィルタ実行後、行部分をクリック！</v-card-text>
       <!-- https://qiita.com/shin_ts/items/0dec5b2f97f90916a1a5 -->
       <v-data-table
         :headers="headers"
         :items="companylist"
-        :items-per-page="8"
+        :items-per-page="16"
         :search="search"
         multi-sort
-        :sort-by="['company', 'date1']"
-        :sort-desc="[false, true]"
+        :sort-by="['company', 'type']"
+        :sort-desc="[false, false]"
+        @click:row="clickRow()"
         fixed-header
         height="500"
         class="tableAfterListing"
       >
 
-        <!-- 会社サイトへリンク https://www.paveway.info/entry/2020/12/11/vuetifyjs_vdatatablelink -->
+        <!-- 列：会社名 -->
         <!-- <template v-slot:[`item.web`]="{ item }"> -->
+        <!-- <template v-slot:[`item.company`]="{ item }"> -->
         <template v-slot:[`item.company`]="{ item }">
-          <!-- <div v-if="!sameCompanyName(item.company)" -->
-            <a v-if="item.web" target="_blank" :href="item.web">
-              <!-- <div v-if="!sameCompanyName(item.company)" dark> -->
-
+          <div>
+          <!-- 会社サイトへリンク https://www.paveway.info/entry/2020/12/11/vuetifyjs_vdatatablelink -->
+          <!-- <div v-if="!sameCompanyName(item.company)"> -->
+          <!-- 右記エラーででるため、vanillaJSで対応。You may have an infinite update loop in a component render function. -->
+          <!-- <div v-if="!sameCompanyflag" > -->
+            <a v-if="item.web" target="_blank" :href="item.web" class="black--text">
               {{ item.company }}
-              <!-- </div> -->
             </a>
-            <p v-else>{{ item.company }}</p>
+            <p v-else class="black--text">{{ item.company }}</p>
           <!-- </div> -->
+
+            <!-- サブ情報 ツールチップ -->
+            <v-tooltip v-if="item.InitPriceSellProfit" bottom >
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  color="primary"
+                  right
+                  dark
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-information-outline
+                </v-icon>
+              </template>
+              <div>InitPriceSellProfit：{{ item.InitPriceSellProfit }}</div>
+              <div v-if="item.capital">資本金：{{ item.capital }}</div>
+              <div v-if="item.business">事業内容：{{ item.business }}</div>
+              <div v-if="item.category">業種：{{ item.category }}</div>
+              <div v-if="item.build">設立年度：{{ item.build }}</div>
+              <div v-if="item.employee">~従業員情報~ 平均年齢：{{ item.employee.age }}  社員数：{{ item.employee.age }}  平均年収：{{ item.employee.salary }}</div>
+              <div v-if="item.grade">grade：{{ item.grade }}</div>
+              <div v-if="item.initPrice">initPrice：{{ item.initPrice }}</div>
+              <div v-if="item.securitiesNo">securitiesNo：{{ item.securitiesNo }}</div>
+              <div v-if="item.pubOfferPrice">pubOfferPrice：{{ item.pubOfferPrice }}</div>
+            </v-tooltip>
+
+            <!-- 詳細ページ遷移 -->
+            <v-btn
+              color="primary"
+              dark
+              x-small
+              plain
+              outlined
+              :to="'/details/' + item.securitiesNo"
+              target="_blank"
+              nuxt
+            >
+              View detail
+            </v-btn>
+          </div>
         </template>
         
         <!-- ツールチップ機能付きアイコン https://zenn.dev/katoaki/articles/a53d1dd254992b -->
         <!-- https://qiita.com/pokoTan2525/items/c698457d2473dab0868f -->
         <!-- <template v-slot:item.scheduledAt="{ item }"> -->
-        <template v-slot:[`item.InitPriceSellProfit`]="{ item }">
+        <!-- <template v-slot:[`item.InitPriceSellProfit`]="{ item }">
           <v-tooltip v-if="item.InitPriceSellProfit" bottom >
             <template v-slot:activator="{ on, attrs }">
               <v-icon
+                color="primary"
+                right
                 dark
                 v-bind="attrs"
                 v-on="on"
               >
                 mdi-information-outline
               </v-icon>
+              <v-btn
+                color="primary"
+                dark
+                x-small
+                plain
+                :to="'/details/' + item.securitiesNo"
+                nuxt
+              >
+                click!
+              </v-btn>
             </template>
             <div>InitPriceSellProfit：{{ item.InitPriceSellProfit }}</div>
             <div v-if="item.capital">資本金：{{ item.capital }}</div>
@@ -75,9 +132,9 @@
             <div v-if="item.securitiesNo">securitiesNo：{{ item.securitiesNo }}</div>
             <div v-if="item.pubOfferPrice">pubOfferPrice：{{ item.pubOfferPrice }}</div>
           </v-tooltip>
-        </template>
+        </template> -->
 
-        <!-- 色変換 -->
+        <!-- 列：値部分 色変換 -->
           <!-- templateタグ内でv-forを使う際の注意点 https://qiita.com/shizen-shin/items/ee97ace80f6945519c39 -->
           <!-- templateタグ内のv-for参考 https://jsfiddle.net/mysticatea/zuyjom9m/47/ -->
         <template v-for="i in counter" v-slot:[`item.date${i}`]="{ item }" >
@@ -108,7 +165,8 @@
           </v-chip>
         </template> -->
       </v-data-table>
-      
+      </div>
+
     </v-card>
 
     <!-- <br><br><br>
@@ -145,8 +203,9 @@ export default {
         search:'',
         types:['', '始値', '終値'],
         headers: [],
-        counter:'',
-        preComapnyName:'',
+        // counter:'',
+        // preComapnyName:'',
+        // sameCompanyflag:false,
         // [
         //   {
         //     text: '会社名',
@@ -207,6 +266,14 @@ export default {
   },
   computed: {
   },
+  // watch: {
+  //   // dialog (val) {
+  //   //   val || this.close()
+  //   // },
+  //     sameCompanyflag(val) {
+  //       val || this.sameCompanyName3()
+  //     },
+  // },
   created(){
     // ヘッダー
     this.headers = this.createHeaders()
@@ -215,29 +282,106 @@ export default {
     this.companylist = this.priceRatioAfterListing() // priceDiary/公募価格
     // this.companylist = this.priceAfterListing() // priceDiary
 
-    this.test = 1
+    // this.test = 1
   },
   mounted(){
+    // this.tryDOM() // DOM操作を試した
+
+    this.companyNameControl() // 同じ会社名が連続で表示される場合、2行目以降は非表示へ
   },
   methods: {
-    sameCompanyName(nowCompanyName){
-      let sameCompanyflag = false;
-      if (this.preComapnyName === nowCompanyName) sameCompanyflag = true
-      this.preComapnyName = nowCompanyName
-      return sameCompanyflag
+    // 行クリック時の処理
+    clickRow(){
+      // クリックした行を判定する方法 https://trialanderror.jp/vuetify-click-row/
+      // console.log("行がクリックされました")
+      this.companyNameControl() 
+    },
+
+    // 同じ会社名が連続で表示される場合、2行目以降は非表示へ
+    companyNameControl() {
+    // tableのserachなどを実行すると、再描画されない(watchで監視し、tableの何かが変わったら、関数を実行するようにする！？)
+    // 行クリックにより、感知し再描画する
+      // class tableAfterListingを取得
+      const tableAfterListing = document.querySelector('.tableAfterListing');
+      // console.log(tableAfterListing)
+      
+      // 全trタグを取得
+      const tblRow = tableAfterListing.querySelectorAll('tr');
+      // console.log(tblRow)
+
+      // tblRowのタグ(td)数
+      const tblRowArray = Array.prototype.slice.call(tblRow, 0);
+      // console.log(tblRowArray)
+      const tblRowCount = tblRowArray.length
+      // console.log(tblRowCount)
+      
+      // 現在行 直前行 処理
+      for(let i=1; i< tblRowCount; i++){
+        // console.log(tblRow[i])
+        // https://qiita.com/KDE_SPACE/items/e21bb31dd4d9c162c4a6
+        // https://www.javadrive.jp/javascript/dom/index13.html
+
+        // 現在行 (text-start)を取得
+        const companyTblData = tblRow[i].querySelector('.text-start')
+        // console.log(companyTblData)
+        const companyNode = companyTblData.firstChild; // companyTblDataの第一子を取得
+        // console.log(companyNode)
+        // const companyText = companyNode.textContent; // companyNodeのテキストを取得
+        // console.log(companyText)
+        // https://note.affi-sapo-sv.com/js-innerhtml-innertext.php
+        const companyInnerText = companyNode.innerText; // companyNodeのテキストを取得
+        // console.log(companyInnerText)
+
+        // 直前行 (text-startのひとつ前)を取得
+        const preCompanyTblData = tblRow[i-1].querySelector('.text-start')
+        // console.log(preCompanyTblData)
+        const preCompanyNode = preCompanyTblData.firstChild; // preCompanyTblDataの第一子を取得
+        // console.log(preCompanyNode)
+        // const preCompanyText = preCompanyNode.textContent; // preCompanyNodeのテキストを取得
+        // console.log(preCompanyText)
+        const preCompanyInnerText = preCompanyNode.innerText; // preCompanyNodeのテキストを取得
+        // console.log(preCompanyInnerText)
+
+        // 全行表示
+        companyNode.style.visibility = 'visible';
+        // 下線 http://alphasis.info/2013/10/javascript-dom-styleobject-borderbottom/
+        companyTblData.style.borderBottom = 'thin solid rgb(0, 0, 0)';
+        // 上線 http://alphasis.info/2013/10/javascript-dom-styleobject-bordertop/
+        companyTblData.style.borderTop = 'thin solid rgb(0, 0, 0)';
+
+        // 現在行の会社名 === 直前行の会社名？
+        // console.log(companyTblData === preCompanyTblData) // ここを検証する(もしかしたらtdでの比較でなく、会社名まで読み取って突き合わせるのがいいかも。)
+        // console.log(companyInnerText === preCompanyInnerText)
+        // if(companyText === preCompanyText){ 
+        if(companyInnerText === preCompanyInnerText){ 
+          // DOMを非表示 https://techacademy.jp/magazine/24738
+          // hidden に設定して非表示
+          companyNode.style.visibility = 'hidden';
+
+          // 上線なくす http://alphasis.info/2013/10/javascript-dom-styleobject-bordertop/
+          companyTblData.style.borderTop = '';
+        }
+        else{
+          // 下線なくす http://alphasis.info/2013/10/javascript-dom-styleobject-borderbottom/
+          companyTblData.style.borderBottom = '';
+        }
+          // console.log(companyNode.style.visibility)
+      }
     },
     createHeaders() {
       const headers = []
          
-      headers[0] = { text: 'info', value: 'InitPriceSellProfit',width: '30'  } // slotでカスタマイズするため、valueの指定は必須となる	
-      headers[1] = {
+      // headers[0] = { text: 'details', sortable: false, value: 'InitPriceSellProfit',width: '20'  } // slotでカスタマイズするため、valueの指定は必須となる	
+      // headers[1] = {
+      headers[0] = {
                     text: '会社名',
                     align: 'start',
                     sortable: true,
                     value: 'company',
-                    width: '150' ,
+                    width: '200' ,
                     }
-      headers[2] = {
+      // headers[2] = {
+      headers[1] = {
                     text: '種類',
                     // align: 'start',
                     // sortable: false,
@@ -356,15 +500,6 @@ export default {
       return {data}
     },
 
-    // 色分け準備 
-    getDateData (item, i) {
-      // const value = `item.date${i}`
-      const value = item[`date${i}`]
-      const text = "item.date"+i
-      // console.log(`value:${value}, text:${text}`)
-      // console.log(`getDateData ${i}:${JSON.stringify(item)}`)
-      return {value, text}
-    },
     // 色分け
     getColor (value) {
       if (value >= 200) return 'green'
@@ -416,6 +551,82 @@ export default {
     //     // ]
     // },
 
+    // // 色分け準備 
+    // getDateData (item, i) {
+    //   // const value = `item.date${i}`
+    //   const value = item[`date${i}`]
+    //   const text = "item.date"+i
+    //   // console.log(`value:${value}, text:${text}`)
+    //   // console.log(`getDateData ${i}:${JSON.stringify(item)}`)
+    //   return {value, text}
+    // },
+
+    // // DOM操作試し
+    // tryDOM(){
+    //   // 【Vue.js】 DOMを直接操作 $el $ref https://qiita.com/smkhkc/items/fefe0c6060978846a2b4
+    //   // const DOMtest = this.$el
+    //   // console.log(`DOMtest:${DOMtest}`)
+    //   const tableDOM = this.$refs.tableDOM
+    //   console.log(tableDOM)
+    //   // const tbody = tableDOM.children
+    //   // // const tbody = tableDOM.tbody
+    //   // console.log(tbody)
+
+    //   const tableAfterListing = document.querySelector('.tableAfterListing');
+    //   console.log(tableAfterListing)
+    //   const tr = tableAfterListing.querySelectorAll('tr');
+    //   console.log(tr[1])
+      
+    //   const firstTd = tr[1].querySelector('.text-start');
+    //   console.log(firstTd)
+    //   // https://qiita.com/KDE_SPACE/items/e21bb31dd4d9c162c4a6
+    //   const firstChild = tr[1].querySelector('.text-start').firstChild;
+    //   // console.log(firstChild.nodeValue)
+    //   console.log(firstChild)
+    //   const firstChildText = firstChild.textContent;
+    //   // console.log(firstChild.nodeValue)
+    //   console.log(firstChildText)
+
+    //   const companyName = firstTd.querySelector('a');
+    //   console.log(companyName)
+
+    //   const companyNameText = companyName.textContent;
+    //   console.log(companyNameText)
+
+    //   const secondTd = tr[2].querySelector('.text-start');
+    //   console.log(secondTd)
+
+    //   // DOM削除
+    //   secondTd.remove()
+    //   // DOM生成
+    //   const blankTd = document.createElement('td');
+    //   blankTd.setAttribute('class', 'test-start');
+    //   console.log(blankTd)
+    //   // DOM挿入
+    //   tr[2].insertAdjacentElement('afterbegin', blankTd);
+
+    //   // vuetifyの v-data-table からフィルター後の項目を取得する
+    //   // https://choshicure.hatenablog.com/entry/v-data-table-get-item-after-filtering
+    //   // const refVuetifyTbl = this.$refs.ref.$children[0].filteredItems
+    //   // console.log(`ref:${JSON.stringify(refVuetifyTbl)}`)
+
+    //   // const refVuetify = this.$refs.ref
+    //   // console.log(refVuetify)
+
+    //   // const refVuetifyTbl = this.$refs.ref.$children[0].computedItems
+    //   // console.log(`ref:${JSON.stringify(refVuetifyTbl)}`)
+    // },
+
+    // // 途中で断念
+    // sameCompanyName(nowCompanyName){
+    //   let sameCompanyflag = false;
+    //   if (this.preComapnyName === nowCompanyName) sameCompanyflag = true
+    //   this.preComapnyName = nowCompanyName
+    //   // if (this.$store.state.preComapnyName === nowCompanyName) sameCompanyflag = true
+    //   // // storeに保存
+    //   // this.$store.commit("setPreComapnyName", nowCompanyName);
+    //   return sameCompanyflag
+    // },
   }
 };
 </script>
@@ -430,22 +641,26 @@ export default {
 /* 「position: sticky」 https://coliss.com/articles/build-websites/operation/css/css-position-sticky-how-it-really-works.html */
 /* z-indexとは https://jajaaan.co.jp/web-production/frontend/z-index/ */
 
+/* ヘッダ固定 */
 /* .v-data-table--fixed-header >>> th:nth-child(1) { */
-.v-data-table--fixed-header ::v-deep th:nth-child(n+1):nth-child(-n+2) {
+/* .v-data-table--fixed-header ::v-deep th:nth-child(n+1):nth-child(-n+2) { */
+.v-data-table--fixed-header ::v-deep th:first-child {
     position: sticky !important;
     position: -webkit-sticky !important;
     left: 0;
     z-index: 9999;
-    background: rgb(68, 15, 2);
+    background: rgb(66, 66, 66);
 }
 
+/* 先頭列固定 */
 /* .tableAfterListing /deep/ tbody > tr:nth-child(2n){ */
-.tableAfterListing /deep/ tbody > tr:nth-child(n) > td:nth-child(n+1):nth-child(-n+2){
+/* .tableAfterListing /deep/ tbody > tr:nth-child(n) > td:nth-child(n+1):nth-child(-n+2){ */
+.tableAfterListing /deep/ tbody > tr:nth-child(n) > td:first-child{
     position: sticky !important;
     position: -webkit-sticky !important;
     left: 0;
     z-index: 10;
-    background: rgb(85, 0, 0);
+    background: rgb(230, 230, 230);
 }
 
 </style>
