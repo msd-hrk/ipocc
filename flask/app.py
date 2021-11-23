@@ -38,13 +38,29 @@ def listedCompanys():
     
     return
     ------
-    flask:5000/listedCompanys?day=25 → 30日分
+    flask:5000/listedCompanys?day=25 → 25日分
     day:default=30
     """
     day_count = request.args.get('day', default=30, type=int)
 
     data = wrap_contents(lc.get_listed_companies(day_count))
     return jsonify(data)
+
+@app.route('/getDetail')
+def getDetail():
+    """
+    上場済み全データから引数証券会社に該当するデータを返す
+    
+    return
+    ------
+    flask:5000/getDetail?securitiesNo=9999 
+    """
+    securities_no = str(request.args.get('securitiesNo', type=int))
+
+    data = wrap_contents(lc.get_listed_companies(securities_no))
+    return jsonify(data)
+
+
 
 def wrap_contents(data):
         response = {
